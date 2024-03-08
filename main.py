@@ -6,13 +6,14 @@ import math
 import random
 from pygame.locals import *
 from game.cactus import Cactus
+from game.dinosaur import Dinosaur
 
 pygame.init()
 clock = pygame.time.Clock()
 
 # Options
 WINDOW_SIZE = (1000, 500) # (Width, Height)
-DRAW_LINES = False # (Draw lines between the dinosaur and cactus to see what the AI sees)
+DRAW_LINES = True # (Draw lines between the dinosaur and cactus to see what the AI sees)
 
 screen = pygame.display.set_mode(WINDOW_SIZE)
 display = pygame.Surface(WINDOW_SIZE)
@@ -26,48 +27,6 @@ font = pygame.font.Font('data/roboto.ttf', 25)
 
 generation = 0
 
-class Dinosaur():
-    def __init__(self, x, y, width, height, img): #img must be a pygame surface object
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.img = pygame.transform.scale(img, (width, height))
-        self.rect = pygame.Rect(x, y, width, height)
-        self.vertical_momentum = 0
-        self.onGround = False
-        self.last_closest_pipe = cacti[0] # Setting the closest cactus to the leftmost cactus by default
-
-    def update(self):
-        self.x, self.y = self.rect.x, self.rect.y # Updating position atributes
-        self.movement()
-
-    def draw(self):
-        display.blit(self.img, (self.x, self.y))
-
-    def jump(self):
-        if self.onGround:
-            self.vertical_momentum = -11
-
-    def movement(self):
-        self.rect.y += self.vertical_momentum
-
-        if self.rect.colliderect(ground_rect):
-            self.onGround = True
-        else:
-            self.onGround = False
-
-        if self.onGround:
-            self.rect.bottom = ground_rect.top + 1 # Adding 1 so that the dinosaur continues to collide with the rect, instead of shaking up and down
-            # Prevent from falling through the ground
-            self.vertical_momentum = 0
-        else:
-            # Add gravity
-            self.vertical_momentum += 0.5
-
-        # Cap gravity
-        if self.vertical_momentum >= 40:
-            self.vertical_momentum = 40
 
 
 
@@ -89,7 +48,7 @@ def draw():
     pygame.draw.line(display, (75, 75, 75), (0, GROUND_LEVEL), (WINDOW_SIZE[0], GROUND_LEVEL), 3)
 
     for dinosaur in dinosaurs:
-        dinosaur.draw()
+        dinosaur.draw(display)
         if DRAW_LINES:
             pygame.draw.line(
                 display, 
@@ -107,9 +66,7 @@ def draw():
     display.blit(score_text, (5, WINDOW_SIZE[1] - 100))
     display.blit(alive_text, (5, WINDOW_SIZE[1] - 40))
     display.blit(generation_text, (5, WINDOW_SIZE[1] - 75))
-
     screen.blit(display, (0, 0))
-
     pygame.display.update()
 ###sss
 def main(genomes, config):
@@ -127,7 +84,7 @@ def main(genomes, config):
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
-        dinosaurs.append(Dinosaur(100, GROUND_LEVEL-90, 80, 85, dinosaur_img))
+        dinosaurs.append(Dinosaur(100, GROUND_LEVEL-90, 80, 85, dinosaur_img, cacti))
         g.fitness = 0
         ge.append(g)
 
