@@ -7,26 +7,15 @@ import random
 from pygame.locals import *
 from game.cactus import Cactus
 from game.dinosaur import Dinosaur
+from game.config import DinoConfig
 
 pygame.init()
 clock = pygame.time.Clock()
-# options
+
 # Options
-WINDOW_SIZE = (1000, 500) # (Width, Height)
-DRAW_LINES = True # (Draw lines between the dinosaur and cactus to see what the AI sees)
 
-screen = pygame.display.set_mode(WINDOW_SIZE)
-display = pygame.Surface(WINDOW_SIZE)
-
-GROUND_LEVEL = WINDOW_SIZE[1]/2 + 75
-ground_rect = pygame.Rect(0, GROUND_LEVEL, WINDOW_SIZE[0], WINDOW_SIZE[1])
-
-dinosaur_img = pygame.image.load('data/dinosaur.png').convert_alpha()
-cactus_img = pygame.image.load('data/cactus.png').convert_alpha()
-font = pygame.font.Font('data/roboto.ttf', 25)
 
 generation = 0
-
 
 
 
@@ -43,37 +32,38 @@ def remove_dinosaur(index):
     nets.pop(index)
 
 def draw():
-    display.fill('white')
+    DinoConfig.display.fill('white')
 
-    pygame.draw.line(display, (75, 75, 75), (0, GROUND_LEVEL), (WINDOW_SIZE[0], GROUND_LEVEL), 3)
+    pygame.draw.line(DinoConfig.display, (75, 75, 75), (0, DinoConfig.GROUND_LEVEL), (DinoConfig.WINDOW_SIZE[0], DinoConfig.GROUND_LEVEL), 3)
 
     for dinosaur in dinosaurs:
-        dinosaur.draw(display)
-        if DRAW_LINES:
+        dinosaur.draw(DinoConfig.display)
+        if DinoConfig.DRAW_LINES:
             pygame.draw.line(
-                display, 
+                DinoConfig.display,
                 (50, 200, 75), 
                 (dinosaur.rect.right, dinosaur.rect.centery), 
                 dinosaur.closest_pipe.rect.midtop,
                 2
             )
     for cactus in cacti:
-        cactus.draw(display)
+        cactus.draw(DinoConfig.display)
 
-    score_text = font.render(f'Score: 0', 1, 'black')
-    alive_text = font.render(f'Number alive: {len(dinosaurs)}', 1, 'black')
-    generation_text = font.render(f'Generation: {generation}', 1, 'black')
-    display.blit(score_text, (5, WINDOW_SIZE[1] - 100))
-    display.blit(alive_text, (5, WINDOW_SIZE[1] - 40))
-    display.blit(generation_text, (5, WINDOW_SIZE[1] - 75))
-    screen.blit(display, (0, 0))
+    score_text = DinoConfig.font.render(f'Score: 0', 1, 'black')
+    alive_text = DinoConfig.font.render(f'Number alive: {len(dinosaurs)}', 1, 'black')
+    generation_text = DinoConfig.font.render(f'Generation: {generation}', 1, 'black')
+    DinoConfig.display.blit(score_text, (5, DinoConfig.WINDOW_SIZE[1] - 100))
+    DinoConfig.display.blit(alive_text, (5, DinoConfig.WINDOW_SIZE[1] - 40))
+    DinoConfig.display.blit(generation_text, (5, DinoConfig.WINDOW_SIZE[1] - 75))
+    DinoConfig.screen.blit(DinoConfig.display, (0, 0))
     pygame.display.update()
 ###sss
+
+
 def main(genomes, config):
     global cacti, dinosaurs, nets, ge, generation
 
-    cacti = [Cactus(WINDOW_SIZE[0] + 100, GROUND_LEVEL - 86, 50, 86, cactus_img)]
-
+    cacti = [Cactus(DinoConfig.WINDOW_SIZE[0] + 100, DinoConfig.GROUND_LEVEL - 86, 50, 86, DinoConfig.cactus_img)]
     dinosaurs = []
     nets = []
     ge = []
@@ -84,7 +74,7 @@ def main(genomes, config):
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
-        dinosaurs.append(Dinosaur(100, GROUND_LEVEL-90, 80, 85, dinosaur_img, cacti))
+        dinosaurs.append(Dinosaur(100, DinoConfig.GROUND_LEVEL-90, 80, 85, dinosaur_img, cacti))
         g.fitness = 0
         ge.append(g)
 
@@ -102,8 +92,8 @@ def main(genomes, config):
 
         # Adding new cactus
         if len(cacti) <= 1:
-            if cacti[0].x < random.randint(300, WINDOW_SIZE[0] - 200) + scroll_speed:
-                cacti.append(Cactus(WINDOW_SIZE[0] + 100, GROUND_LEVEL - 86, 50, 86, cactus_img, scroll_speed))
+            if cacti[0].x < random.randint(300, DinoConfig.WINDOW_SIZE[0] - 200) + scroll_speed:
+                cacti.append(Cactus(DinoConfig.WINDOW_SIZE[0] + 100, DinoConfig.GROUND_LEVEL - 86, 50, 86, DinoConfig.cactus_img, scroll_speed))
 
         for cactus in cacti:
             cactus.update()
