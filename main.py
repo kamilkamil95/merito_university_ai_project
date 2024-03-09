@@ -10,10 +10,11 @@ from game.dinosaur import Dinosaur
 from game.config import DinoConfig
 
 pygame.init()
+DinoConfig.initialize()
+
 clock = pygame.time.Clock()
 
 # Options
-
 
 generation = 0
 
@@ -74,7 +75,7 @@ def main(genomes, config):
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
-        dinosaurs.append(Dinosaur(100, DinoConfig.GROUND_LEVEL-90, 80, 85, dinosaur_img, cacti))
+        dinosaurs.append(Dinosaur(100, DinoConfig.GROUND_LEVEL-90, 80, 85, DinoConfig.dinosaur_img, cacti))
         g.fitness = 0
         ge.append(g)
 
