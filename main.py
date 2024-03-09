@@ -14,8 +14,6 @@ DinoConfig.initialize()
 
 clock = pygame.time.Clock()
 
-# Options
-
 generation = 0
 
 
@@ -63,7 +61,6 @@ def draw():
 
 def main(genomes, config):
     global cacti, dinosaurs, nets, ge, generation
-
     cacti = [Cactus(DinoConfig.WINDOW_SIZE[0] + 100, DinoConfig.GROUND_LEVEL - 86, 50, 86, DinoConfig.cactus_img)]
     dinosaurs = []
     nets = []

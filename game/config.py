@@ -7,10 +7,6 @@ class DinoConfig():
         screen = pygame.display.set_mode(WINDOW_SIZE)
         display = pygame.Surface(WINDOW_SIZE)
         ground_rect = pygame.Rect(0, GROUND_LEVEL, WINDOW_SIZE[0], WINDOW_SIZE[1])
-
-
-        # screen = None
-        # display = None
         dinosaur_img = None
         cactus_img = None
         font = None
