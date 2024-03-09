@@ -10,7 +10,7 @@ from game.dinosaur import Dinosaur
 
 pygame.init()
 clock = pygame.time.Clock()
-
+# options
 # Options
 WINDOW_SIZE = (1000, 500) # (Width, Height)
 DRAW_LINES = True # (Draw lines between the dinosaur and cactus to see what the AI sees)
