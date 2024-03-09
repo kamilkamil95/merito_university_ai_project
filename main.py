@@ -6,68 +6,16 @@ import math
 import random
 from pygame.locals import *
 from game.cactus import Cactus
+from game.dinosaur import Dinosaur
+from game.config import DinoConfig
 
 pygame.init()
 clock = pygame.time.Clock()
 
 # Options
-WINDOW_SIZE = (1000, 500) # (Width, Height)
-DRAW_LINES = False # (Draw lines between the dinosaur and cactus to see what the AI sees)
 
-screen = pygame.display.set_mode(WINDOW_SIZE)
-display = pygame.Surface(WINDOW_SIZE)
-
-GROUND_LEVEL = WINDOW_SIZE[1]/2 + 75
-ground_rect = pygame.Rect(0, GROUND_LEVEL, WINDOW_SIZE[0], WINDOW_SIZE[1])
-
-dinosaur_img = pygame.image.load('data/dinosaur.png').convert_alpha()
-cactus_img = pygame.image.load('data/cactus.png').convert_alpha()
-font = pygame.font.Font('data/roboto.ttf', 25)
 
 generation = 0
-
-class Dinosaur():
-    def __init__(self, x, y, width, height, img): #img must be a pygame surface object
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.img = pygame.transform.scale(img, (width, height))
-        self.rect = pygame.Rect(x, y, width, height)
-        self.vertical_momentum = 0
-        self.onGround = False
-        self.last_closest_pipe = cacti[0] # Setting the closest cactus to the leftmost cactus by default
-
-    def update(self):
-        self.x, self.y = self.rect.x, self.rect.y # Updating position atributes
-        self.movement()
-
-    def draw(self):
-        display.blit(self.img, (self.x, self.y))
-
-    def jump(self):
-        if self.onGround:
-            self.vertical_momentum = -11
-
-    def movement(self):
-        self.rect.y += self.vertical_momentum
-
-        if self.rect.colliderect(ground_rect):
-            self.onGround = True
-        else:
-            self.onGround = False
-
-        if self.onGround:
-            self.rect.bottom = ground_rect.top + 1 # Adding 1 so that the dinosaur continues to collide with the rect, instead of shaking up and down
-            # Prevent from falling through the ground
-            self.vertical_momentum = 0
-        else:
-            # Add gravity
-            self.vertical_momentum += 0.5
-
-        # Cap gravity
-        if self.vertical_momentum >= 40:
-            self.vertical_momentum = 40
 
 
 
@@ -84,39 +32,38 @@ def remove_dinosaur(index):
     nets.pop(index)
 
 def draw():
-    display.fill('white')
+    DinoConfig.display.fill('white')
 
-    pygame.draw.line(display, (75, 75, 75), (0, GROUND_LEVEL), (WINDOW_SIZE[0], GROUND_LEVEL), 3)
+    pygame.draw.line(DinoConfig.display, (75, 75, 75), (0, DinoConfig.GROUND_LEVEL), (DinoConfig.WINDOW_SIZE[0], DinoConfig.GROUND_LEVEL), 3)
 
     for dinosaur in dinosaurs:
-        dinosaur.draw()
-        if DRAW_LINES:
+        dinosaur.draw(DinoConfig.display)
+        if DinoConfig.DRAW_LINES:
             pygame.draw.line(
-                display, 
+                DinoConfig.display,
                 (50, 200, 75), 
                 (dinosaur.rect.right, dinosaur.rect.centery), 
                 dinosaur.closest_pipe.rect.midtop,
                 2
             )
     for cactus in cacti:
-        cactus.draw(display)
+        cactus.draw(DinoConfig.display)
 
-    score_text = font.render(f'Score: 0', 1, 'black')
-    alive_text = font.render(f'Number alive: {len(dinosaurs)}', 1, 'black')
-    generation_text = font.render(f'Generation: {generation}', 1, 'black')
-    display.blit(score_text, (5, WINDOW_SIZE[1] - 100))
-    display.blit(alive_text, (5, WINDOW_SIZE[1] - 40))
-    display.blit(generation_text, (5, WINDOW_SIZE[1] - 75))
-
-    screen.blit(display, (0, 0))
-
+    score_text = DinoConfig.font.render(f'Score: 0', 1, 'black')
+    alive_text = DinoConfig.font.render(f'Number alive: {len(dinosaurs)}', 1, 'black')
+    generation_text = DinoConfig.font.render(f'Generation: {generation}', 1, 'black')
+    DinoConfig.display.blit(score_text, (5, DinoConfig.WINDOW_SIZE[1] - 100))
+    DinoConfig.display.blit(alive_text, (5, DinoConfig.WINDOW_SIZE[1] - 40))
+    DinoConfig.display.blit(generation_text, (5, DinoConfig.WINDOW_SIZE[1] - 75))
+    DinoConfig.screen.blit(DinoConfig.display, (0, 0))
     pygame.display.update()
 ###sss
+
+
 def main(genomes, config):
     global cacti, dinosaurs, nets, ge, generation
 
-    cacti = [Cactus(WINDOW_SIZE[0] + 100, GROUND_LEVEL - 86, 50, 86, cactus_img)]
-
+    cacti = [Cactus(DinoConfig.WINDOW_SIZE[0] + 100, DinoConfig.GROUND_LEVEL - 86, 50, 86, DinoConfig.cactus_img)]
     dinosaurs = []
     nets = []
     ge = []
@@ -127,7 +74,7 @@ def main(genomes, config):
     for _, g in genomes:
         net = neat.nn.FeedForwardNetwork.create(g, config)
         nets.append(net)
-        dinosaurs.append(Dinosaur(100, GROUND_LEVEL-90, 80, 85, dinosaur_img))
+        dinosaurs.append(Dinosaur(100, DinoConfig.GROUND_LEVEL-90, 80, 85, dinosaur_img, cacti))
         g.fitness = 0
         ge.append(g)
 
@@ -145,8 +92,8 @@ def main(genomes, config):
 
         # Adding new cactus
         if len(cacti) <= 1:
-            if cacti[0].x < random.randint(300, WINDOW_SIZE[0] - 200) + scroll_speed:
-                cacti.append(Cactus(WINDOW_SIZE[0] + 100, GROUND_LEVEL - 86, 50, 86, cactus_img, scroll_speed))
+            if cacti[0].x < random.randint(300, DinoConfig.WINDOW_SIZE[0] - 200) + scroll_speed:
+                cacti.append(Cactus(DinoConfig.WINDOW_SIZE[0] + 100, DinoConfig.GROUND_LEVEL - 86, 50, 86, DinoConfig.cactus_img, scroll_speed))
 
         for cactus in cacti:
             cactus.update()
